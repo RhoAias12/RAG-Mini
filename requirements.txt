@@ -1,0 +1,6 @@
+# Official Gemini Python SDK (embeddings, answer generation)
+google-genai==2.34.0
+# Load API keys from .env into environment variables
+python-dotenv==1.2.4
+# Store vectors (.npy) and compute cosine similarity
+numpy==2.5.4
