@@ -1,0 +1,16 @@
+{
+  "started_at": "2026-11-05T13:54:29",
+  "finished_at": "2026-11-05T13:56:05",
+  "settings_version": "v1",
+  "num_chunks": 46,
+  "k": 4,
+  "embed_model": "gemini-embedding-2",
+  "embed_dim": 768,
+  "llm_provider": "gemini",
+  "llm_model": "gemini-3.5-flash-lite",
+  "temperature": 0.0,
+  "doc_hash": "f9f10c8d175c7ace820713191d841adc1ae645b4eec8af7b80d73954804c7381",
+  "questions_file": "questions.tsv",
+  "questions_total": 20,
+  "questions_done": 20
+}
