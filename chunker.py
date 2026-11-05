@@ -9,12 +9,13 @@
   2) 섹션 안의 마크다운 표는 "헤더 + 데이터 행 1개"씩 따로 조각으로 만든다.
   3) 표가 아닌 글이 CHUNK_MAX_CHARS 를 넘으면
      굵은 소제목 → 목록 항목/빈 줄 → 문장 순서로 경계를 찾아 자른다.
-  4) CHUNK_MIN_CHARS 보다 짧은 일반 조각은 다음(없으면 이전) 조각과 합친다.
+  4) CHUNK_MIN_CHARS 보다 짧은 일반 조각은 다음(없으면 이전) 일반 조각과 합친다.
+     표 조각은 합치지도, 합쳐 받지도 않는다. 병합 때문에 MAX 를 넘는 것은 허용.
 """
 import json
 import re
 import sys
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 import config
@@ -35,7 +36,7 @@ class Chunk:
     kind: str          # "text" 또는 "table"
     raw: str           # 원문 (마크다운 그대로, 화면 표시용)
     text: str          # 정제문 (서식 제거, 임베딩용)
-    merged: int = 0    # 합쳐 들어온 짧은 조각 수
+    merged: list = field(default_factory=list)   # 합쳐 들어온 짧은 조각 설명
 
     @property
     def path_full(self):
@@ -236,7 +237,9 @@ def merge_into(small, target, before):
         raw = f"{small.path[-1]}\n{raw}"
     target.raw = f"{raw}\n{target.raw}" if before else f"{target.raw}\n{raw}"
     target.text = clean_text(target.raw)
-    target.merged += 1 + small.merged
+    preview = small.text.replace("\n", " ")[:30]
+    target.merged.append(f"{small.path_short} ({len(small.text)}자, {'앞' if before else '뒤'}에 붙음): {preview}…")
+    target.merged.extend(small.merged)
 
 
 def merge_small(chunks, min_len):
@@ -308,7 +311,7 @@ def save(chunks, files):
     for c in chunks:
         tags = [c.kind, f"{len(c.text)}자"]
         if c.merged:
-            tags.append(f"짧은 조각 {c.merged}개 병합")
+            tags.append(f"짧은 조각 {len(c.merged)}개 병합")
         lines += [
             "---",
             "",
@@ -316,6 +319,9 @@ def save(chunks, files):
             "",
             f"- 제목 경로: {c.path_full}",
             f"- 파일: {c.file} · " + " · ".join(tags),
+        ]
+        lines += [f"- 병합됨: {m}" for m in c.merged]
+        lines += [
             "",
             "```text",
             c.text,
@@ -331,8 +337,11 @@ def report(chunks):
     print(f"길이(정제문 글자 수): 최소 {min(lengths)} / 최대 {max(lengths)} / "
           f"평균 {sum(lengths) / len(lengths):.0f}")
     print(f"표 조각 수: {sum(c.kind == 'table' for c in chunks)}")
-    print(f"병합: 짧은 조각 {sum(c.merged for c in chunks)}개가 "
-          f"{sum(1 for c in chunks if c.merged)}개 조각에 합쳐짐")
+    merged = [c for c in chunks if c.merged]
+    print(f"병합: 짧은 조각 {sum(len(c.merged) for c in merged)}개가 {len(merged)}개 조각에 합쳐짐")
+    for c in merged:
+        for m in c.merged:
+            print(f"  → [{c.id}] {c.path_short} 에 병합: {m}")
     over = [c for c in chunks if len(c.text) > config.CHUNK_MAX_CHARS]
     print(f"{config.CHUNK_MAX_CHARS}자 초과: " +
           (", ".join(f"[{c.id}] {len(c.text)}자" for c in over) if over else "없음"))
