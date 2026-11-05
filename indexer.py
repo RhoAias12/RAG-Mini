@@ -19,6 +19,7 @@ import numpy as np
 import chunker
 import config
 import embedder
+import gemini_api
 
 EMB_PATH = config.INDEX_DIR / "embeddings.npy"
 META_PATH = config.INDEX_DIR / "meta.json"
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     start = time.perf_counter()
     try:
         chunks, emb = load_index(rebuild=args.rebuild)
-    except embedder.DailyQuotaExceeded as e:
+    except gemini_api.DailyQuotaExceeded as e:
         sys.exit(f"오늘 한도 소진: 내일 다시 실행해 주세요. ({e})")
     print(f"조각 {len(chunks)}개 · 임베딩 {emb.shape[0]}행 × {emb.shape[1]}차원 · "
-          f"API 호출 {embedder.api_calls}회 · {time.perf_counter() - start:.1f}초")
+          f"API 호출 {gemini_api.api_calls}회 · {time.perf_counter() - start:.1f}초")

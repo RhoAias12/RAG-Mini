@@ -1,7 +1,11 @@
 """프로젝트 설정값 모음. 값을 바꿀 때는 이 파일만 고치면 된다."""
+import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 ROOT = Path(__file__).parent
+load_dotenv(ROOT / ".env")   # API 키 등을 환경변수로 불러온다 (값은 어디에도 출력하지 않음)
 
 # --- 경로 ---
 DATA_DIR = ROOT / "data" / "private"   # 원본 문서 폴더 (.md, .txt 를 모두 읽음)
@@ -30,8 +34,13 @@ MAX_RETRIES = 5                  # 최대 재시도 횟수
 BACKOFF_BASE_SEC = 2             # 2 → 4 → 8 → 16 → 32초
 # 429 중 '일일 한도 소진'은 재시도하지 않고 멈춘다
 
-# --- 답변 생성 (다음 단계에서 구현) ---
-LLM_PROVIDER = "gemini"          # "gemini" 또는 "claude" (claude는 요청 시 추가, 키 이름 RAG_CLAUDE_KEY)
+# --- 검색 ---
+TOP_K = 4                        # 가져올 근거 조각 수 (app.py --k 로 바꿀 수 있음)
+
+# --- 답변 생성 ---
+# "gemini" 또는 "claude" (.env 의 LLM_PROVIDER 가 있으면 그 값). claude는 요청 시 추가, 키 이름 RAG_CLAUDE_KEY
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini").strip().lower()
 GEMINI_LLM_MODEL = "gemini-3.5-flash-lite"           # 무료: RPM 15, RPD 500
-GEMINI_LLM_FALLBACK_MODEL = "gemini-3.1-flash-lite"  # 예비
-LLM_DELAY_SEC = 5                # 답변 요청 사이 대기
+GEMINI_LLM_FALLBACK_MODEL = "gemini-3.1-flash-lite"  # 예비 (한도에 걸리면 위 값을 이것으로 바꾼다)
+LLM_TEMPERATURE = 0.0            # 0 = 같은 질문에 최대한 같은 답
+LLM_DELAY_SEC = 5                # 답변 요청 사이 최소 간격 (RPM 15 보호)
