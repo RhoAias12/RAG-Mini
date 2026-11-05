@@ -198,4 +198,4 @@ python eval.py              # eval/questions.tsv 일괄 실행 → eval/results_
 
 - **문서:** 팀 캡스톤 보고서 1종 (공개 GitHub README). 원본 저장소: https://github.com/RhoAias12/hywu-2025-capstone-love119
 - 팀원 이름은 A~D로 익명 처리되어 있다.
-- **내 역할:** 원본 캡스톤 프로젝트에서는 보고서의 Part 1 시각화를 담당했다. 이 RAG 챗봇의 설계·구현·평가는 개인 프로젝트다.
+- **내 역할:** 원본 캡스톤 프로젝트에서는 보고서의 Part 1 시각화를 담당했다. 이 RAG 챗봇의 설계·구현·평가는 개인 프로젝트이다.
