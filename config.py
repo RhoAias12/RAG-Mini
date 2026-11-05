@@ -5,6 +5,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).parent
+
+# --- 설정 버전 ---
+# v1 고정: 조각 46개(MAX 800 / MIN 80), TOP_K 4, temperature 0, gemini-3.5-flash-lite, llm.py 프롬프트.
+# 평가 결과를 본 뒤 아래 값이나 프롬프트를 바꿀 때는 버전을 v2 로 올린다.
+SETTINGS_VERSION = "v1"
 load_dotenv(ROOT / ".env")   # API 키 등을 환경변수로 불러온다 (값은 어디에도 출력하지 않음)
 
 # --- 경로 ---
